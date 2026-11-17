@@ -1,0 +1,14 @@
+# Credentials and config
+.env
+config.local.php
+*.log
+rtai-blogger.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.idea/
+.vscode/
+*.swp
