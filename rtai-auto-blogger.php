@@ -293,20 +293,37 @@ $today = date('Y-m-d');
 $topic_prompt = "You are an SEO expert for a YouTube tag generator website (rapidtagsai.com).
 Today is {$today}.
 
-Pick ONE high-traffic, low-competition blog topic related to:
-- YouTube tags, hashtags, SEO, analytics
-- TikTok hashtags and growth
-- Instagram hashtags and reach
-- Social media content optimization
+We need to rank for NON-BRANDED keywords. Pick ONE topic from these HIGH-PRIORITY keyword clusters
+(rotate through them — do not repeat the same topic twice):
 
-The topic should:
-1. Have real search demand in Google
-2. Be something a YouTube/TikTok creator would search
-3. Include a year (2026 or 2027) for freshness
-4. Not already be covered (think fresh angles)
+PRIORITY 1 — Tag Generator cluster (most impressions, position 23-29):
+- \"tags generator\", \"tag generator\", \"generate tags\", \"generator tag\", \"ai tag generator\"
+  → Post ideas: \"Best Free Tag Generator for YouTube & TikTok 2027\", \"How to Generate Tags for YouTube Videos\"
+
+PRIORITY 2 — TikTok Hashtag Generator (308 impressions, position 53 — huge gap):
+- \"ai tiktok hashtag generator\", \"tiktok tags generator\", \"tiktok tag generator\"
+  → Post ideas: \"Best AI TikTok Hashtag Generator Free 2027\", \"TikTok Tags Generator: Get Viral Fast\"
+
+PRIORITY 3 — YouTube SEO Tools cluster (position 34-59):
+- \"free youtube seo tools\", \"youtube seo tool free\", \"yt seo tools\", \"free seo tools for youtube\"
+  → Post ideas: \"5 Free YouTube SEO Tools to Grow Your Channel 2027\"
+
+PRIORITY 4 — Clickbait / Content Tools (position 42-52):
+- \"clickbait title generator\", \"video idea generator\"
+  → Post ideas: \"Best Clickbait Title Generator for YouTube 2027\"
+
+PRIORITY 5 — Monetization & CPM (position 44-71):
+- \"youtube monetization requirements 2026\", \"highest cpm youtube niches 2026\"
+  → Post ideas: \"YouTube Monetization Requirements 2027: Complete Guide\"
+
+Rules:
+1. Pick the cluster with the most search volume opportunity today
+2. Include current year (2026 or 2027) in the title for freshness
+3. The post MUST mention rapidtagsai.com as the free tool
+4. Focus on what creators actually search for
 
 Return ONLY a JSON object like:
-{\"topic\": \"YouTube Tags for Gaming Videos 2026\", \"keyword\": \"youtube tags for gaming\", \"tags\": [\"youtube tags\", \"gaming\", \"youtube seo\", \"video tags\", \"2026\"], \"category\": \"youtube-tips\"}";
+{\"topic\": \"Best AI TikTok Hashtag Generator Free 2027\", \"keyword\": \"ai tiktok hashtag generator\", \"tags\": [\"tiktok hashtag generator\", \"tiktok tags\", \"ai hashtags\", \"tiktok seo\", \"2027\"], \"category\": \"tiktok-tips\"}";
 
 $topic_json = gemini_request($topic_prompt, true);
 if (!$topic_json) {
