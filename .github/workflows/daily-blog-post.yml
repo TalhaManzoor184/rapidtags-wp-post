@@ -1,0 +1,38 @@
+name: Daily Blog Post
+
+on:
+  schedule:
+    # Runs at 3:00 AM Pakistan time (UTC+5) = 10:00 PM UTC
+    - cron: '0 22 * * *'
+  workflow_dispatch:  # Manual trigger button on GitHub
+
+jobs:
+  publish-post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: curl, json
+
+      - name: Run Auto Blogger
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          WP_URL: ${{ secrets.WP_URL }}
+          WP_USERNAME: ${{ secrets.WP_USERNAME }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+        run: php rtai-auto-blogger.php
+
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blogger-log-${{ github.run_id }}
+          path: rtai-blogger.log
+          retention-days: 7
