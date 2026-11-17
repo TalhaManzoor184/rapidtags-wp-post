@@ -33,10 +33,10 @@ function log_msg($msg) {
 // ============================================================
 function gemini_request($prompt, $json_mode = false) {
     $models = [
-        'gemini-2.0-flash',
-        'gemini-1.5-flash',
-        'gemini-1.5-pro',
-        'gemini-pro',
+        'gemini-3.8-flash',
+        'gemini-2.5-flash',
+        'gemini-2.5-pro',
+        'gemini-2.0-flash-lite',
     ];
 
     foreach ($models as $model) {
