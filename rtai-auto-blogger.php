@@ -34,9 +34,8 @@ function log_msg($msg) {
 function gemini_request($prompt, $json_mode = false) {
     $models = [
         'gemini-3.8-flash',
-        'gemini-2.5-flash',
-        'gemini-2.5-pro',
-        'gemini-2.0-flash-lite',
+        'gemini-3.5-flash-lite',
+        'gemini-3.1-pro-preview',
     ];
 
     foreach ($models as $model) {
@@ -76,7 +75,7 @@ function gemini_call($model, $prompt, $json_mode = false) {
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => json_encode($body),
         CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-        CURLOPT_TIMEOUT        => 60,
+        CURLOPT_TIMEOUT        => 90,
     ]);
 
     $response = curl_exec($ch);
@@ -89,7 +88,27 @@ function gemini_call($model, $prompt, $json_mode = false) {
         return false;
     }
 
-    if ($http_code !== 200) {
+    if ($http_code === 503) {
+        // Server busy — wait and retry once
+        log_msg("HTTP 503 for $model (server busy), retrying in 15s...");
+        sleep(15);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $ch2 = curl_init($url);
+        curl_setopt_array($ch2, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => json_encode($body),
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+            CURLOPT_TIMEOUT        => 90,
+        ]);
+        $response  = curl_exec($ch2);
+        $http_code = curl_getinfo($ch2, CURLINFO_HTTP_CODE);
+        curl_close($ch2);
+        if ($http_code !== 200) {
+            log_msg("HTTP $http_code for $model after retry: " . substr($response, 0, 200));
+            return false;
+        }
+    } elseif ($http_code !== 200) {
         log_msg("HTTP $http_code for $model: " . substr($response, 0, 200));
         return false;
     }
