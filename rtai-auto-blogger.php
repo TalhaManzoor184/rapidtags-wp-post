@@ -367,8 +367,8 @@ Requirements:
 - Write for a YouTube/TikTok creator audience
 - Practical, actionable advice
 - Professional but friendly tone
-- Near the end of the post (before or after the FAQ), include a natural recommendation for TubeBuddy as a paid tool for serious YouTubers. Use this exact affiliate link: https://www.tubebuddy.com/pricing?a=RAPIDTAGS
-  Example: <p>If you want to take your YouTube SEO even further, <a href="https://www.tubebuddy.com/pricing?a=RAPIDTAGS" rel="sponsored" target="_blank"><strong>TubeBuddy</strong></a> is one of the best tools for keyword research, tag suggestions, and channel analytics. It pairs perfectly with RapidTags for a complete YouTube SEO workflow.</p>
+- Near the end of the post (before or after the FAQ), include a natural recommendation for TubeBuddy as a paid tool for serious YouTubers. Affiliate link: https://www.tubebuddy.com/pricing?a=RAPIDTAGS
+  Write something like: If you want to take your YouTube SEO even further, TubeBuddy (link: https://www.tubebuddy.com/pricing?a=RAPIDTAGS) is one of the best tools for keyword research and tag suggestions. Use rel=sponsored and target=_blank on the link.
   Keep it natural — 2-3 sentences max, not spammy
 
 Also at the top of your response, before the HTML, add a line:
@@ -425,7 +425,49 @@ if (empty($post_content)) {
     $post_content = $raw_post; // fallback: use full response as content
 }
 
-log_msg("Post title: $post_title");
+// ============================================================
+// INJECT ADSENSE ADS INTO POST CONTENT
+// ============================================================
+$ad_top = '
+<!-- AdSense: Post Top -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3927136769668680" crossorigin="anonymous"></script>
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3927136769668680" data-ad-slot="8766667796" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+';
+
+$ad_mid = '
+<!-- AdSense: Post Mid -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3927136769668680" crossorigin="anonymous"></script>
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3927136769668680" data-ad-slot="4520621824" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+';
+
+$ad_bottom = '
+<!-- AdSense: Post Bottom -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3927136769668680" crossorigin="anonymous"></script>
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3927136769668680" data-ad-slot="5855679405" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+';
+
+// Insert top ad at the very beginning
+$post_content = $ad_top . $post_content;
+
+// Insert mid ad after the 2nd <h2> tag (middle of content)
+$h2_count = 0;
+$mid_inserted = false;
+$post_content = preg_replace_callback('/<h2[\s>]/i', function($match) use (&$h2_count, &$mid_inserted, $ad_mid) {
+    $h2_count++;
+    if ($h2_count === 2 && !$mid_inserted) {
+        $mid_inserted = true;
+        return $ad_mid . $match[0];
+    }
+    return $match[0];
+}, $post_content);
+
+// Insert bottom ad at the very end
+$post_content = $post_content . $ad_bottom;
+
+log_msg("AdSense ads injected (top, mid after 2nd H2, bottom)");
 log_msg("Post slug: $post_slug");
 
 // Step 3: Get category ID
