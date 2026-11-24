@@ -367,6 +367,9 @@ Requirements:
 - Write for a YouTube/TikTok creator audience
 - Practical, actionable advice
 - Professional but friendly tone
+- Near the end of the post (before or after the FAQ), include a natural recommendation for TubeBuddy as a paid tool for serious YouTubers. Use this exact affiliate link: https://www.tubebuddy.com/pricing?a=RAPIDTAGS
+  Example: <p>If you want to take your YouTube SEO even further, <a href="https://www.tubebuddy.com/pricing?a=RAPIDTAGS" rel="sponsored" target="_blank"><strong>TubeBuddy</strong></a> is one of the best tools for keyword research, tag suggestions, and channel analytics. It pairs perfectly with RapidTags for a complete YouTube SEO workflow.</p>
+  Keep it natural — 2-3 sentences max, not spammy
 
 Also at the top of your response, before the HTML, add a line:
 TITLE: [exact blog post title]
