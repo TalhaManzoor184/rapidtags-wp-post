@@ -468,6 +468,22 @@ $post_content = preg_replace_callback('/<h2[\s>]/i', function($match) use (&$h2_
 $post_content = $post_content . $ad_bottom;
 
 log_msg("AdSense ads injected (top, mid after 2nd H2, bottom)");
+
+// ============================================================
+// INJECT TUBEBUDDY AFFILIATE RECOMMENDATION (hardcoded)
+// ============================================================
+$tubebuddy_box = '
+<div style="background:#f0f7ff;border-left:4px solid #1a73e8;padding:16px 20px;margin:24px 0;border-radius:4px;">
+  <p style="margin:0 0 8px 0;font-weight:bold;">🚀 Want to Grow Your YouTube Channel Faster?</p>
+  <p style="margin:0;">Pair RapidTags with <a href="https://www.tubebuddy.com/pricing?a=RAPIDTAGS" rel="sponsored" target="_blank" style="color:#1a73e8;font-weight:bold;">TubeBuddy</a> — the #1 YouTube-certified tool for keyword research, tag optimization, and channel analytics. Used by 10M+ creators. <a href="https://www.tubebuddy.com/pricing?a=RAPIDTAGS" rel="sponsored" target="_blank" style="color:#1a73e8;">Try TubeBuddy free →</a></p>
+</div>
+';
+
+// Insert TubeBuddy box before the last </p> before $ad_bottom (i.e. after content, before bottom ad)
+// Place it just before the bottom ad
+$post_content = str_replace($ad_bottom, $tubebuddy_box . $ad_bottom, $post_content);
+
+log_msg("TubeBuddy affiliate box injected");
 log_msg("Post slug: $post_slug");
 
 // Step 3: Get category ID
