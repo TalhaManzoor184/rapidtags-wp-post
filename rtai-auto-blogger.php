@@ -91,8 +91,8 @@ function gemini_call($model, $prompt, $json_mode = false) {
 
     if ($http_code === 503) {
         // Server busy — wait and retry once
-        log_msg("HTTP 503 for $model (server busy), retrying in 15s...");
-        sleep(15);
+        log_msg("HTTP 503 for $model (server busy), retrying in 5s...");
+        sleep(5);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $ch2 = curl_init($url);
         curl_setopt_array($ch2, [
