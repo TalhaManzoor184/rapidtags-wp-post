@@ -17,6 +17,7 @@ define('GEMINI_API_KEY', getenv('GEMINI_API_KEY') ?: 'YOUR_GEMINI_API_KEY_HERE')
 define('WP_URL',         getenv('WP_URL')         ?: 'https://rapidtagsai.com/wp-blog');
 define('WP_USERNAME',    getenv('WP_USERNAME')     ?: 'admin');
 define('WP_APP_PASSWORD',getenv('WP_APP_PASSWORD') ?: 'YOUR_WP_APP_PASSWORD_HERE');
+define('DEVTO_API_KEY',  getenv('DEVTO_API_KEY')   ?: '');
 define('LOG_FILE',       __DIR__ . '/rtai-blogger.log');
 
 // ============================================================
@@ -282,6 +283,69 @@ function create_or_get_tags($tag_names) {
 }
 
 // ============================================================
+// DEV.TO API
+// ============================================================
+function devto_post($title, $html_content, $excerpt, $tags, $canonical_url) {
+    // Strip AdSense script tags — dev.to blocks external scripts
+    $clean_content = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $html_content);
+    // Strip inline styles from TubeBuddy box (dev.to strips them anyway)
+    // Keep the content, just clean it up
+    $clean_content = strip_tags($clean_content, '<p><h2><h3><ul><ol><li><strong><em><a><blockquote><code><pre><br>');
+
+    // dev.to uses markdown — convert basic HTML
+    // For simplicity, send as markdown with HTML passthrough (dev.to accepts both)
+    // Use the cleaned HTML directly — dev.to renders basic HTML fine
+
+    // Tags: max 4, lowercase, no spaces
+    $devto_tags = array_slice(array_map(function($t) {
+        return strtolower(preg_replace('/[^a-z0-9]/i', '', $t));
+    }, $tags), 0, 4);
+
+    $post_data = [
+        'article' => [
+            'title'          => $title,
+            'body_markdown'  => $clean_content,
+            'published'      => true,
+            'canonical_url'  => $canonical_url,
+            'description'    => $excerpt,
+            'tags'           => $devto_tags,
+        ]
+    ];
+
+    $ch = curl_init('https://dev.to/api/articles');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode($post_data),
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'api-key: ' . DEVTO_API_KEY,
+        ],
+        CURLOPT_TIMEOUT        => 30,
+    ]);
+
+    $response  = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_err  = curl_error($ch);
+    curl_close($ch);
+
+    if ($curl_err) {
+        log_msg("dev.to cURL error: $curl_err");
+        return false;
+    }
+
+    $data = json_decode($response, true);
+
+    if ($http_code === 201 && isset($data['id'])) {
+        log_msg("dev.to post published! ID: {$data['id']}, URL: {$data['url']}");
+        return $data;
+    }
+
+    log_msg("dev.to publish failed (HTTP $http_code): " . substr($response, 0, 300));
+    return false;
+}
+
+// ============================================================
 // MAIN FLOW
 // ============================================================
 log_msg("=== RTAI Auto Blogger Starting ===");
@@ -508,6 +572,15 @@ if ($result) {
 } else {
     log_msg("=== FAILED: Post was not published ===");
     exit(1);
+}
+
+// Step 6: Publish to dev.to (cross-post with canonical URL)
+if (DEVTO_API_KEY && $result) {
+    log_msg("Step 6: Cross-posting to dev.to...");
+    $canonical_url = $result['link'];
+    devto_post($post_title, $post_content, $post_excerpt, $tags, $canonical_url);
+} else {
+    log_msg("Step 6: Skipping dev.to (no API key or WP failed)");
 }
 
 log_msg("=== RTAI Auto Blogger Done ===");
